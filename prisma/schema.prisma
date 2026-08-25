@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Movie {
+  id           String         @id @default(cuid())
+  title        String
+  slug         String         @unique
+  description  String?
+  genres       String?
+  year         Int?
+  durationSec  Int?
+  rating       Float?
+  posterUrl    String?
+  originalUrl  String?
+  hlsUrl       String?
+  hlsStatus    String         @default("none")
+  hlsQualities String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  jobs         TranscodeJob[]
+}
+
+model TranscodeJob {
+  id         String    @id @default(cuid())
+  movieId    String
+  movie      Movie     @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  qualities  String
+  status     String    @default("processing")
+  error      String?
+  createdAt  DateTime  @default(now())
+  finishedAt DateTime?
+
+  @@index([movieId])
+}
